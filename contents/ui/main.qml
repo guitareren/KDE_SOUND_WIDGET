@@ -18,6 +18,57 @@ PlasmoidItem {
 
     preferredRepresentation: fullRepresentation
 
+    // Language detection and bilingual translations
+    readonly property bool isTurkish: Qt.locale().name.toLowerCase().startsWith("tr")
+
+    readonly property var translations: {
+        "en": {
+            "devices": "Devices",
+            "apps": "Applications",
+            "theme": "Theme: %1",
+            "unmute": "Unmute",
+            "mute": "Mute",
+            "muted": "Muted",
+            "live_vu_output": "Live VU Output",
+            "no_device": "No Output Device",
+            "unmute_mic": "Unmute Mic",
+            "mute_mic": "Mute Mic",
+            "mic_muted": "Microphone Muted",
+            "live_vu_input": "Live VU Input",
+            "no_mic": "No Microphone",
+            "no_apps": "No Active Applications",
+            "no_apps_desc": "Applications playing audio will automatically appear here.",
+            "application": "Application"
+        },
+        "tr": {
+            "devices": "Aygıtlar",
+            "apps": "Uygulamalar",
+            "theme": "Tema: %1",
+            "unmute": "Sesi Aç",
+            "mute": "Sesi Kapat",
+            "muted": "Sessiz",
+            "live_vu_output": "Canlı VU Çıkış",
+            "no_device": "Aygıt Yok",
+            "unmute_mic": "Mikrofonu Aç",
+            "mute_mic": "Mikrofonu Kapat",
+            "mic_muted": "Mikrofon Kapalı",
+            "live_vu_input": "Canlı VU Giriş",
+            "no_mic": "Mikrofon Yok",
+            "no_apps": "Çalan Uygulama Yok",
+            "no_apps_desc": "Herhangi bir medya veya tarayıcı sesi başladığında burada listelenecektir.",
+            "application": "Uygulama"
+        }
+    }
+
+    function t(key, arg) {
+        let lang = isTurkish ? "tr" : "en";
+        let str = (translations[lang] && translations[lang][key]) || (translations["en"] && translations["en"][key]) || key;
+        if (arg !== undefined) {
+            str = str.replace("%1", arg);
+        }
+        return str;
+    }
+
     // Tab state (0: Aygıtlar / Devices, 1: Uygulamalar / Apps)
     property int currentTabIndex: 0
 
@@ -222,8 +273,8 @@ PlasmoidItem {
                             }
                             Text {
                                 text: (root.currentTabIndex === 0
-                                       ? i18n("Aygıtlar")
-                                       : (i18n("Uygulamalar") + (root.filteredAppStreams.count > 0 ? " (" + root.filteredAppStreams.count + ")" : ""))) + "  ⇆"
+                                       ? root.t("devices")
+                                       : (root.t("apps") + (root.filteredAppStreams.count > 0 ? " (" + root.filteredAppStreams.count + ")" : ""))) + "  ⇆"
                                 color: root.activeTheme.text
                                 font.bold: true
                                 font.pixelSize: 12
@@ -242,7 +293,7 @@ PlasmoidItem {
                         id: themeBtn
                         Layout.preferredHeight: Kirigami.Units.gridUnit * 1.9
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 1.9
-                        PlasmaComponents.ToolTip.text: i18n("Tema: %1", root.activeTheme.displayName)
+                        PlasmaComponents.ToolTip.text: root.t("theme", root.activeTheme.displayName)
                         PlasmaComponents.ToolTip.visible: hovered
 
                         onClicked: themeMenu.open()
@@ -401,13 +452,13 @@ PlasmoidItem {
                                     Layout.fillWidth: true
                                     spacing: Kirigami.Units.smallSpacing
 
-                                    PlasmaComponents.ToolButton {
+                                     PlasmaComponents.ToolButton {
                                         id: outputMuteBtn
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
                                         checkable: true
                                         checked: root.defaultSink ? root.defaultSink.muted : false
-                                        PlasmaComponents.ToolTip.text: root.defaultSink && root.defaultSink.muted ? i18n("Sesi Aç") : i18n("Sesi Kapat")
+                                        PlasmaComponents.ToolTip.text: root.defaultSink && root.defaultSink.muted ? root.t("unmute") : root.t("mute")
                                         PlasmaComponents.ToolTip.visible: hovered
 
                                         onClicked: {
@@ -428,7 +479,7 @@ PlasmoidItem {
 
                                             Text {
                                                 Layout.fillWidth: true
-                                                text: root.defaultSink && root.defaultSink.muted ? i18n("Sesi Aç") : i18n("Sesi Kapat")
+                                                text: root.defaultSink && root.defaultSink.muted ? root.t("unmute") : root.t("mute")
                                                 color: root.activeTheme.text
                                                 font.bold: true
                                                 font.pixelSize: 11
@@ -450,7 +501,7 @@ PlasmoidItem {
                                     }
 
                                     Text {
-                                        text: root.defaultSink ? (root.defaultSink.muted ? i18n("Sessiz") : i18n("Canlı VU Çıkış")) : i18n("Aygıt Yok")
+                                        text: root.defaultSink ? (root.defaultSink.muted ? root.t("muted") : root.t("live_vu_output")) : root.t("no_device")
                                         font.pixelSize: 11
                                         color: root.activeTheme.subText
                                         elide: Text.ElideRight
@@ -553,13 +604,13 @@ PlasmoidItem {
                                     Layout.fillWidth: true
                                     spacing: Kirigami.Units.smallSpacing
 
-                                    PlasmaComponents.ToolButton {
+                                     PlasmaComponents.ToolButton {
                                         id: micMuteBtn
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
                                         checkable: true
                                         checked: root.defaultMic ? root.defaultMic.muted : false
-                                        PlasmaComponents.ToolTip.text: root.defaultMic && root.defaultMic.muted ? i18n("Mikrofonu Aç") : i18n("Mikrofonu Kapat")
+                                        PlasmaComponents.ToolTip.text: root.defaultMic && root.defaultMic.muted ? root.t("unmute_mic") : root.t("mute_mic")
                                         PlasmaComponents.ToolTip.visible: hovered
 
                                         onClicked: {
@@ -580,7 +631,7 @@ PlasmoidItem {
 
                                             Text {
                                                 Layout.fillWidth: true
-                                                text: root.defaultMic && root.defaultMic.muted ? i18n("Mikrofonu Aç") : i18n("Mikrofonu Kapat")
+                                                text: root.defaultMic && root.defaultMic.muted ? root.t("unmute_mic") : root.t("mute_mic")
                                                 color: root.activeTheme.text
                                                 font.bold: true
                                                 font.pixelSize: 11
@@ -602,7 +653,7 @@ PlasmoidItem {
                                     }
 
                                     Text {
-                                        text: root.defaultMic ? (root.defaultMic.muted ? i18n("Mikrofon Kapalı") : i18n("Canlı VU Giriş")) : i18n("Mikrofon Yok")
+                                        text: root.defaultMic ? (root.defaultMic.muted ? root.t("mic_muted") : root.t("live_vu_input")) : root.t("no_mic")
                                         font.pixelSize: 11
                                         color: root.activeTheme.subText
                                         elide: Text.ElideRight
@@ -639,7 +690,7 @@ PlasmoidItem {
                         }
 
                         Text {
-                            text: i18n("Çalan Uygulama Yok")
+                            text: root.t("no_apps")
                             font.bold: true
                             font.pixelSize: 14
                             color: root.activeTheme.text
@@ -647,7 +698,7 @@ PlasmoidItem {
                         }
 
                         Text {
-                            text: i18n("Herhangi bir medya veya tarayıcı sesi başladığında burada listelenecektir.")
+                            text: root.t("no_apps_desc")
                             color: root.activeTheme.subText
                             font.pixelSize: 11
                             Layout.alignment: Qt.AlignHCenter
@@ -690,7 +741,7 @@ PlasmoidItem {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: (model.Client && model.Client.name) ? model.Client.name : (model.Name || (pObject ? pObject.name : i18n("Uygulama")))
+                                        text: (model.Client && model.Client.name) ? model.Client.name : (model.Name || (pObject ? pObject.name : root.t("application")))
                                         font.bold: true
                                         color: root.activeTheme.text
                                         elide: Text.ElideRight
@@ -712,7 +763,7 @@ PlasmoidItem {
                                         icon.name: pObject && pObject.muted ? "audio-volume-muted" : "audio-volume-high"
                                         checkable: true
                                         checked: pObject ? pObject.muted : false
-                                        PlasmaComponents.ToolTip.text: pObject && pObject.muted ? i18n("Sesi Aç") : i18n("Sesi Kapat")
+                                        PlasmaComponents.ToolTip.text: pObject && pObject.muted ? root.t("unmute") : root.t("mute")
                                         PlasmaComponents.ToolTip.visible: hovered
 
                                         onClicked: {

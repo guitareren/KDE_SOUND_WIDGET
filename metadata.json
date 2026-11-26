@@ -7,11 +7,13 @@
             }
         ],
         "Category": "Multimedia",
-        "Description": "Mikrofon ses seviyesi, açma/kapatma ve ses çıkış aygıtı seçimi masaüstü widget'ı",
+        "Description": "Desktop widget for master output, microphone control, per-app streams, and live VU meters",
+        "Description[tr]": "Mikrofon ses seviyesi, açma/kapatma ve ses çıkış aygıtı seçimi masaüstü widget'ı",
         "Icon": "audio-volume-high",
         "Id": "org.eren.audiocontrol",
         "License": "GPL-3.0+",
-        "Name": "Ses Denetimi (Desktop Audio Control)",
+        "Name": "Desktop Audio Control",
+        "Name[tr]": "Ses Denetimi (Desktop Audio Control)",
         "Version": "1.0.0"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
