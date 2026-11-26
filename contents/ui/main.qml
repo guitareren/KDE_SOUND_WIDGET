@@ -13,8 +13,14 @@ PlasmoidItem {
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
     // Desktop/Full representation default dimensions
-    width: Kirigami.Units.gridUnit * 18.5
-    height: Kirigami.Units.gridUnit * 16.5
+    width: Kirigami.Units.gridUnit * 15.5
+    height: Kirigami.Units.gridUnit * 16.0
+    implicitWidth: Kirigami.Units.gridUnit * 15.5
+    implicitHeight: Kirigami.Units.gridUnit * 16.0
+    Layout.preferredWidth: implicitWidth
+    Layout.preferredHeight: implicitHeight
+    Layout.minimumWidth: Kirigami.Units.gridUnit * 13
+    Layout.minimumHeight: Kirigami.Units.gridUnit * 13
 
     preferredRepresentation: fullRepresentation
 
@@ -222,10 +228,14 @@ PlasmoidItem {
     // Full Representation (Desktop Card & Popup View)
     fullRepresentation: Item {
         id: fullRepItem
-        implicitWidth: Kirigami.Units.gridUnit * 18.5
-        implicitHeight: contentColumn.implicitHeight + Kirigami.Units.mediumSpacing
+        width: Kirigami.Units.gridUnit * 15.5
+        height: Kirigami.Units.gridUnit * 16.0
+        implicitWidth: Kirigami.Units.gridUnit * 15.5
+        implicitHeight: Kirigami.Units.gridUnit * 16.0
         Layout.preferredWidth: implicitWidth
         Layout.preferredHeight: implicitHeight
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 13
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 13
 
         // Themed outer frame (100% transparent so widget cards float cleanly on desktop wallpaper)
         Rectangle {
@@ -246,14 +256,17 @@ PlasmoidItem {
                 // HEADER ROW: View Toggle & Theme Selector
                 // ==========================================
                 RowLayout {
+                    id: headerRow
                     Layout.fillWidth: true
+                    Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
                     spacing: Kirigami.Units.smallSpacing
 
                     // View Toggle Button (Aygıtlar <-> Uygulamalar)
                     Rectangle {
                         id: viewToggleBtn
                         Layout.fillWidth: true
-                        height: Kirigami.Units.gridUnit * 1.9
+                        Layout.fillHeight: true
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
                         radius: 6
                         color: root.activeTheme.isBreeze
                                ? Qt.rgba(root.activeTheme.accent.r, root.activeTheme.accent.g, root.activeTheme.accent.b, 0.15)
@@ -291,8 +304,9 @@ PlasmoidItem {
                     // Theme selector button
                     PlasmaComponents.ToolButton {
                         id: themeBtn
-                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.9
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.9
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
+                        Layout.alignment: Qt.AlignVCenter
                         PlasmaComponents.ToolTip.text: root.t("theme", root.activeTheme.displayName)
                         PlasmaComponents.ToolTip.visible: hovered
 
@@ -351,14 +365,30 @@ PlasmoidItem {
                 }
 
                 // ==========================================
-                // TAB CONTENT 1: AYGITLAR (DEVICES)
+                // STACK LAYOUT FOR TAB PAGES
                 // ==========================================
-                ColumnLayout {
-                    id: devicesColumn
+                StackLayout {
+                    id: viewStack
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    spacing: Kirigami.Units.smallSpacing
-                    visible: root.currentTabIndex === 0
+                    currentIndex: root.currentTabIndex
+
+                    // ==========================================
+                    // TAB CONTENT 1: AYGITLAR (DEVICES)
+                    // ==========================================
+                    ColumnLayout {
+                        id: devicesColumn
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: Kirigami.Units.smallSpacing
+                        opacity: viewStack.currentIndex === 0 ? 1.0 : 0.0
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 180
+                                easing.type: Easing.OutCubic
+                            }
+                        }
 
                     // ------------------------------------------
                     // KART 1: Ses Çıkışı (Master Output Device)
@@ -366,6 +396,8 @@ PlasmoidItem {
                     Rectangle {
                         id: outputCard
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: Kirigami.Units.gridUnit * 5
                         radius: 8
                         color: root.activeTheme.cardBg
                         border.color: root.activeTheme.border
@@ -425,13 +457,15 @@ PlasmoidItem {
                             // Rotary Dial + Mute Düğmesi Düzeni (Entegre Canlı VU Metre)
                             RowLayout {
                                 Layout.fillWidth: true
+                                Layout.fillHeight: true
                                 spacing: Kirigami.Units.mediumSpacing
 
                                 // Sol: Retro Rotary Knob ile Entegre Canlı VU Metre
                                 RotaryKnob {
                                     id: masterKnob
-                                    implicitWidth: Kirigami.Units.gridUnit * 4.8
-                                    implicitHeight: Kirigami.Units.gridUnit * 4.8
+                                    implicitWidth: Math.round(Math.min(Kirigami.Units.gridUnit * 4.2, (outputCard.width > 0 ? outputCard.width * 0.45 : Kirigami.Units.gridUnit * 4.2)))
+                                    implicitHeight: implicitWidth
+                                    Layout.alignment: Qt.AlignVCenter
                                     value: root.defaultSink ? root.defaultSink.volume : 0
                                     peakVolume: (root.visible && root.currentTabIndex === 0 && Boolean(root.defaultSink) && !root.defaultSink.muted) ? root.sinkMonitor.volume : 0.0
                                     muted: root.defaultSink ? root.defaultSink.muted : false
@@ -450,6 +484,7 @@ PlasmoidItem {
                                 // Sağ: Mute Düğmesi ve Durum
                                 ColumnLayout {
                                     Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignVCenter
                                     spacing: Kirigami.Units.smallSpacing
 
                                      PlasmaComponents.ToolButton {
@@ -518,6 +553,8 @@ PlasmoidItem {
                     Rectangle {
                         id: micCard
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: Kirigami.Units.gridUnit * 5
                         radius: 8
                         color: root.activeTheme.cardBg
                         border.color: root.activeTheme.border
@@ -577,13 +614,15 @@ PlasmoidItem {
                             // Rotary Dial + Mute Düğmesi Düzeni (Entegre Canlı VU Metre)
                             RowLayout {
                                 Layout.fillWidth: true
+                                Layout.fillHeight: true
                                 spacing: Kirigami.Units.mediumSpacing
 
                                 // Sol: Mikrofon Rotary Knob ile Entegre Canlı VU Metre
                                 RotaryKnob {
                                     id: micKnob
-                                    implicitWidth: Kirigami.Units.gridUnit * 4.8
-                                    implicitHeight: Kirigami.Units.gridUnit * 4.8
+                                    implicitWidth: Math.round(Math.min(Kirigami.Units.gridUnit * 4.2, (micCard.width > 0 ? micCard.width * 0.45 : Kirigami.Units.gridUnit * 4.2)))
+                                    implicitHeight: implicitWidth
+                                    Layout.alignment: Qt.AlignVCenter
                                     value: root.defaultMic ? root.defaultMic.volume : 0
                                     peakVolume: (root.visible && root.currentTabIndex === 0 && Boolean(root.defaultMic) && !root.defaultMic.muted) ? root.micMonitor.volume : 0.0
                                     muted: root.defaultMic ? root.defaultMic.muted : false
@@ -602,6 +641,7 @@ PlasmoidItem {
                                 // Sağ: Mute Düğmesi ve Durum
                                 ColumnLayout {
                                     Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignVCenter
                                     spacing: Kirigami.Units.smallSpacing
 
                                      PlasmaComponents.ToolButton {
@@ -665,125 +705,133 @@ PlasmoidItem {
                     }
                 }
 
-                // ==========================================
-                // TAB CONTENT 2: UYGULAMALAR (APPS)
-                // ==========================================
-                Item {
-                    id: appsContainer
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    implicitHeight: devicesColumn.implicitHeight
-                    visible: root.currentTabIndex === 1
+                    // ==========================================
+                    // TAB CONTENT 2: UYGULAMALAR (APPS)
+                    // ==========================================
+                    Item {
+                        id: appsContainer
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        opacity: viewStack.currentIndex === 1 ? 1.0 : 0.0
 
-                    // Boş Durum (Empty State)
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        visible: root.filteredAppStreams.count === 0
-                        spacing: Kirigami.Units.mediumSpacing
-
-                        Kirigami.Icon {
-                            source: "multimedia-player"
-                            Layout.alignment: Qt.AlignHCenter
-                            Layout.preferredWidth: Kirigami.Units.iconSizes.enormous
-                            Layout.preferredHeight: Kirigami.Units.iconSizes.enormous
-                            opacity: 0.4
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 180
+                                easing.type: Easing.OutCubic
+                            }
                         }
 
-                        Text {
-                            text: root.t("no_apps")
-                            font.bold: true
-                            font.pixelSize: 14
-                            color: root.activeTheme.text
-                            Layout.alignment: Qt.AlignHCenter
+                        // Boş Durum (Empty State)
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            visible: root.filteredAppStreams.count === 0
+                            spacing: Kirigami.Units.mediumSpacing
+
+                            Kirigami.Icon {
+                                source: "multimedia-player"
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.preferredWidth: Kirigami.Units.iconSizes.enormous
+                                Layout.preferredHeight: Kirigami.Units.iconSizes.enormous
+                                opacity: 0.4
+                            }
+
+                            Text {
+                                text: root.t("no_apps")
+                                font.bold: true
+                                font.pixelSize: 14
+                                color: root.activeTheme.text
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+
+                            Text {
+                                text: root.t("no_apps_desc")
+                                color: root.activeTheme.subText
+                                font.pixelSize: 11
+                                Layout.alignment: Qt.AlignHCenter
+                            }
                         }
 
-                        Text {
-                            text: root.t("no_apps_desc")
-                            color: root.activeTheme.subText
-                            font.pixelSize: 11
-                            Layout.alignment: Qt.AlignHCenter
-                        }
-                    }
+                        // Aktif Ses Akışları Listesi (App Streams ListView)
+                        ListView {
+                            anchors.fill: parent
+                            visible: root.filteredAppStreams.count > 0
+                            clip: true
+                            spacing: Kirigami.Units.smallSpacing
+                            boundsBehavior: Flickable.StopAtBounds
+                            model: root.filteredAppStreams
 
-                    // Aktif Ses Akışları Listesi (App Streams ListView)
-                    ListView {
-                        anchors.fill: parent
-                        visible: root.filteredAppStreams.count > 0
-                        clip: true
-                        spacing: Kirigami.Units.smallSpacing
-                        model: root.filteredAppStreams
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: appItemColumn.implicitHeight + (Kirigami.Units.smallSpacing * 2)
+                                radius: 8
+                                color: root.activeTheme.cardBg
+                                border.color: root.activeTheme.border
+                                border.width: 1
 
-                        delegate: Rectangle {
-                            width: ListView.view.width
-                            height: appItemColumn.implicitHeight + (Kirigami.Units.smallSpacing * 2)
-                            radius: 8
-                            color: root.activeTheme.cardBg
-                            border.color: root.activeTheme.border
-                            border.width: 1
+                                readonly property var pObject: model.PulseObject
 
-                            readonly property var pObject: model.PulseObject
-
-                            ColumnLayout {
-                                id: appItemColumn
-                                anchors.fill: parent
-                                anchors.margins: Kirigami.Units.smallSpacing
-                                spacing: Kirigami.Units.smallSpacing
-
-                                RowLayout {
-                                    Layout.fillWidth: true
+                                ColumnLayout {
+                                    id: appItemColumn
+                                    anchors.fill: parent
+                                    anchors.margins: Kirigami.Units.smallSpacing
                                     spacing: Kirigami.Units.smallSpacing
 
-                                    Kirigami.Icon {
-                                        source: model.IconName || (model.Client ? model.Client.iconName : "") || (pObject ? pObject.iconName : "") || "audio-volume-high"
-                                        Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
-                                        Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
-                                    }
-
-                                    Text {
+                                    RowLayout {
                                         Layout.fillWidth: true
-                                        text: (model.Client && model.Client.name) ? model.Client.name : (model.Name || (pObject ? pObject.name : root.t("application")))
-                                        font.bold: true
-                                        color: root.activeTheme.text
-                                        elide: Text.ElideRight
-                                    }
+                                        spacing: Kirigami.Units.smallSpacing
 
-                                    Text {
-                                        text: root.formatVolume(pObject ? pObject.volume : 0)
-                                        font.bold: true
-                                        color: root.activeTheme.text
-                                        opacity: 0.8
-                                    }
-                                }
+                                        Kirigami.Icon {
+                                            source: model.IconName || (model.Client ? model.Client.iconName : "") || (pObject ? pObject.iconName : "") || "audio-volume-high"
+                                            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                                            Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
+                                        }
 
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: Kirigami.Units.smallSpacing
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: (model.Client && model.Client.name) ? model.Client.name : (model.Name || (pObject ? pObject.name : root.t("application")))
+                                            font.bold: true
+                                            color: root.activeTheme.text
+                                            elide: Text.ElideRight
+                                        }
 
-                                    PlasmaComponents.ToolButton {
-                                        icon.name: pObject && pObject.muted ? "audio-volume-muted" : "audio-volume-high"
-                                        checkable: true
-                                        checked: pObject ? pObject.muted : false
-                                        PlasmaComponents.ToolTip.text: pObject && pObject.muted ? root.t("unmute") : root.t("mute")
-                                        PlasmaComponents.ToolTip.visible: hovered
-
-                                        onClicked: {
-                                            if (pObject) {
-                                                pObject.muted = !pObject.muted;
-                                            }
+                                        Text {
+                                            text: root.formatVolume(pObject ? pObject.volume : 0)
+                                            font.bold: true
+                                            color: root.activeTheme.text
+                                            opacity: 0.8
                                         }
                                     }
 
-                                    PlasmaComponents.Slider {
+                                    RowLayout {
                                         Layout.fillWidth: true
-                                        from: 0
-                                        to: 65536
-                                        stepSize: 655.36
-                                        enabled: pObject ? pObject.volumeWritable : false
-                                        value: pObject ? pObject.volume : 0
+                                        spacing: Kirigami.Units.smallSpacing
 
-                                        onMoved: {
-                                            if (pObject) {
-                                                pObject.volume = Math.round(value);
+                                        PlasmaComponents.ToolButton {
+                                            icon.name: pObject && pObject.muted ? "audio-volume-muted" : "audio-volume-high"
+                                            checkable: true
+                                            checked: pObject ? pObject.muted : false
+                                            PlasmaComponents.ToolTip.text: pObject && pObject.muted ? root.t("unmute") : root.t("mute")
+                                            PlasmaComponents.ToolTip.visible: hovered
+
+                                            onClicked: {
+                                                if (pObject) {
+                                                    pObject.muted = !pObject.muted;
+                                                }
+                                            }
+                                        }
+
+                                        PlasmaComponents.Slider {
+                                            Layout.fillWidth: true
+                                            from: 0
+                                            to: 65536
+                                            stepSize: 655.36
+                                            enabled: pObject ? pObject.volumeWritable : false
+                                            value: pObject ? pObject.volume : 0
+
+                                            onMoved: {
+                                                if (pObject) {
+                                                    pObject.volume = Math.round(value);
+                                                }
                                             }
                                         }
                                     }
