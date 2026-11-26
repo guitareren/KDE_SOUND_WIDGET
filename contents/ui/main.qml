@@ -258,44 +258,46 @@ PlasmoidItem {
                 RowLayout {
                     id: headerRow
                     Layout.fillWidth: true
-                    Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
+                    Layout.preferredHeight: Kirigami.Units.gridUnit * 1.5
                     spacing: Kirigami.Units.smallSpacing
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     // View Toggle Button (Aygıtlar <-> Uygulamalar)
                     Rectangle {
                         id: viewToggleBtn
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
+                        implicitWidth: Kirigami.Units.gridUnit * 1.5
+                        implicitHeight: Kirigami.Units.gridUnit * 1.5
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.5
+                        Layout.fillWidth: false
                         radius: 6
-                        color: root.activeTheme.isBreeze
-                               ? Qt.rgba(root.activeTheme.accent.r, root.activeTheme.accent.g, root.activeTheme.accent.b, 0.15)
-                               : root.activeTheme.cardBg
+                        color: viewToggleMouseArea.pressed
+                               ? Qt.darker(root.activeTheme.cardBg, 1.1)
+                               : (viewToggleMouseArea.containsMouse ? Qt.lighter(root.activeTheme.cardBg, 1.05) : root.activeTheme.cardBg)
                         border.color: root.activeTheme.border
                         border.width: 1
 
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: Kirigami.Units.smallSpacing
+                        PlasmaComponents.ToolTip.text: root.currentTabIndex === 0 ? root.t("devices") : root.t("apps")
+                        PlasmaComponents.ToolTip.visible: viewToggleMouseArea.containsMouse
 
-                            Kirigami.Icon {
-                                source: root.currentTabIndex === 0 ? "audio-speakers" : "applications-multimedia"
-                                Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                                Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                                color: root.activeTheme.text
-                            }
-                            Text {
-                                text: (root.currentTabIndex === 0
-                                       ? root.t("devices")
-                                       : (root.t("apps") + (root.filteredAppStreams.count > 0 ? " (" + root.filteredAppStreams.count + ")" : ""))) + "  ⇆"
-                                color: root.activeTheme.text
-                                font.bold: true
-                                font.pixelSize: 12
-                            }
+                        Kirigami.Icon {
+                            anchors.centerIn: parent
+                            source: root.currentTabIndex === 0 ? "audio-speakers" : "applications-multimedia"
+                            isMask: true
+                            color: root.activeTheme.text
+                            width: Kirigami.Units.iconSizes.small
+                            height: Kirigami.Units.iconSizes.small
+                            Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                            Layout.preferredHeight: Kirigami.Units.iconSizes.small
                         }
 
                         MouseArea {
+                            id: viewToggleMouseArea
                             anchors.fill: parent
+                            hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: root.currentTabIndex = (root.currentTabIndex === 0 ? 1 : 0)
                         }
@@ -304,8 +306,11 @@ PlasmoidItem {
                     // Theme selector button
                     PlasmaComponents.ToolButton {
                         id: themeBtn
-                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.8
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
+                        implicitWidth: Kirigami.Units.gridUnit * 1.5
+                        implicitHeight: Kirigami.Units.gridUnit * 1.5
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.5
+                        Layout.fillWidth: false
                         Layout.alignment: Qt.AlignVCenter
                         PlasmaComponents.ToolTip.text: root.t("theme", root.activeTheme.displayName)
                         PlasmaComponents.ToolTip.visible: hovered
@@ -314,10 +319,13 @@ PlasmoidItem {
 
                         contentItem: Kirigami.Icon {
                             anchors.centerIn: parent
-                            source: "preferences-desktop-theme"
+                            source: "draw-brush"
+                            isMask: true
+                            color: root.activeTheme.text
+                            width: Kirigami.Units.iconSizes.small
+                            height: Kirigami.Units.iconSizes.small
                             Layout.preferredWidth: Kirigami.Units.iconSizes.small
                             Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                            color: root.activeTheme.text
                         }
 
                         background: Rectangle {
