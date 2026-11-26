@@ -1,0 +1,7 @@
+# KDE / Qt build & cache files
+*.qmlc
+*.jsc
+.qmlcache/
+*~
+.directory
+*.autosave

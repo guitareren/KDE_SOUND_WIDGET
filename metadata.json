@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Eren"
+            }
+        ],
+        "Category": "Multimedia",
+        "Description": "Mikrofon ses seviyesi, açma/kapatma ve ses çıkış aygıtı seçimi masaüstü widget'ı",
+        "Icon": "audio-volume-high",
+        "Id": "org.eren.audiocontrol",
+        "License": "GPL-3.0+",
+        "Name": "Ses Denetimi (Desktop Audio Control)",
+        "Version": "1.0.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
